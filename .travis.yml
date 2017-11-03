@@ -32,3 +32,49 @@ env:
   - PUPPET_VERSION="~> 4.7.0"
 matrix:
   fast_finish: true
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes PUPPET_VERSION="~> 5.0"
+      script:
+        - bundle exec rake spec
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes PUPPET_VERSION="~> 4.10.0"
+      script:
+        - bundle exec rake spec
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes PUPPET_VERSION="~> 4.9.2"
+      script:
+        - bundle exec rake spec
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes PUPPET_VERSION="~> 4.8.2"
+      script:
+        - bundle exec rake spec
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes PUPPET_VERSION="~> 4.7.0"
+      script:
+        - bundle exec rake spec
+
+    - stage: deploy
+      rvm: 2.1.9
+      script:
+        - true
+      before_deploy:
+        - "export RPM_SPEC_VERSION=`grep Version: build/simp-adapter.spec | sed -e 's/^Version: *//'`"
+        - '[[ $TRAVIS_TAG =~ ^${RPM_SPEC_VERSION}$ ]]'
+      deploy:
+        - provider: releases
+          api_key:
+            secure: "XXXXXXXXX"
+          skip_cleanup: true
+          on:
+            tags: true
+            condition: '($SKIP_FORGE_PUBLISH != true)'
